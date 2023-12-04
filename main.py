@@ -1,6 +1,8 @@
 import cv2 as cv
 import numpy as np
-
+from skimage import segmentation
+from skimage import graph
+from skimage import color
 
 def calculate_k_means(clusters_amt, img):
     img_as_rgb_vector = img.reshape((-1,3)) # Actually not a vector but width * height x 3 (RGB) so 2D
@@ -12,10 +14,18 @@ def calculate_k_means(clusters_amt, img):
     return res.reshape(img.shape)
 
 
+def perform_rag(img):
+    labels = segmentation.slic(img, compactness=30, n_segments=400, start_label=1)
+    g = graph.rag_mean_color(img, labels)
+    labels2 = graph.cut_threshold(labels, g, 29)
+    res = color.label2rgb(labels2, img, kind='avg', bg_label=0)
+    cv.imwrite('data/output_images/rag_cut.jpg', res)
+
+
 if __name__ == '__main__':
     clusters_amt = 32
 
-    img = cv.imread('data/input_images/flowers.jpg')
+    img = cv.imread('data/input_images/china.jpg')
 
     # bilateral filtering https://www.geeksforgeeks.org/python-bilateral-filtering/
     bilateral_output = cv.bilateralFilter(img, 15, 75, 75)
@@ -27,4 +37,8 @@ if __name__ == '__main__':
 
     cv.imwrite('data/output_images/k_means.jpg', k_means_output)
 
-    # RAG https://pypi.org/project/img2rag/
+    # RAG
+    # https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_draw.html
+    # https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_mean_color.html#sphx-glr-auto-examples-segmentation-plot-rag-mean-color-py - graph cut
+    # https://pypi.org/project/img2rag/
+    perform_rag(k_means_output)
