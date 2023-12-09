@@ -1,10 +1,10 @@
 import cv2 as cv
 import numpy as np
-from collections import Counter
 from matplotlib import pyplot as plt
 from skimage import color
 from skimage import graph
 from skimage import segmentation
+
 
 def resize_image(img, max_img_size):
     if(img.shape[0]>img.shape[1]):
@@ -47,11 +47,50 @@ def perform_rag(img, rag_cut_threshold):
     return color.label2rgb(labels2, img, kind='avg', bg_label=0)
 
 
+def contrast_map(image):
+    # grab the image dimensions
+    height = image.shape[0]
+    width = image.shape[1]
+    # rgb to lab to get luminance
+    image_cielab = color.rgb2lab(image)
+    map_of_colors = {}
+    for x in range(0, height):
+        for y in range(0, width):
+            color_value = str(image[x][y])
+            # add empty element if key doesn't exist
+            if not map_of_colors.get(color_value):
+                map_of_colors[color_value] = (0,0) #(amt, sum)
+            # for colors around
+            for x_shift in range(-2,2):
+                for y_shift in range(-2,2):
+                    # check for borders
+                    if(x+x_shift >= 0 and y+y_shift>=0 and x+x_shift<height and y+y_shift<width):
+                        # when luminance of neighbour pixel is other than selected pixel
+                        if(image_cielab[x][y][0] != image_cielab[x+x_shift][y+y_shift][0]):
+                            # add lum distance between selected and neighbour,
+                            # increment amount for further normalisation
+                            map_of_colors[color_value] = (map_of_colors[color_value][0]+1, map_of_colors[color_value][1]+abs(image_cielab[x+x_shift][y+y_shift][0] - image_cielab[x][y][0]))
+    map_of_contrast = {}
+    max_contrast_value = 0
+
+    # setup map_of_contrast with contrast divided by amount
+    for key in map_of_colors.keys():
+        map_of_contrast[key] = map_of_colors[key][1]/map_of_colors[key][0]
+        if map_of_contrast[key] > max_contrast_value:
+            max_contrast_value = map_of_contrast[key]
+
+    # normalise map_of_contrast
+    for key in map_of_contrast.keys():
+        map_of_contrast[key] = map_of_contrast[key] / max_contrast_value
+
+    return map_of_contrast
+
+
 if __name__ == '__main__':
     clusters_amt = 32
-    rag_cut_threshold = 30
+    rag_cut_threshold = 25
     max_img_size = 1000
-    img = cv.imread('data/input_images/flowers.jpg')
+    img = cv.imread('data/input_images/full_moon.jpg')
 
     img = resize_image(img, max_img_size)
 
@@ -77,18 +116,15 @@ if __name__ == '__main__':
 
     cv.imwrite('data/output_images/rag_cut.jpg', img)
 
-    # Getting pallette from image, doesnt work for now
-    # Maybe iteration through array, getting some map or set of occurences and then plot it somehow
-    # https://towardsdatascience.com/finding-most-common-colors-in-python-47ea0767a06a
-    # img = img.reshape((-1, 3))
-    # show_img_compar(img, palette(img))
-
     # https://stackoverflow.com/questions/12282232/how-do-i-count-occurrence-of-unique-values-inside-a-list
     # https://docs.python.org/3/library/collections.html#collections.Counter
-
     # https://stackoverflow.com/questions/28663856/how-do-i-count-the-occurrence-of-a-certain-item-in-an-ndarray
     img_as_vector = img.reshape(-1,3)
     values, counts = np.unique(img_as_vector, return_counts=True, axis=0)
-    dummy = 0
     # print(np.unique(img, return_counts=True, axis=0))
+
+    # calculate contrast values for each color
+    print(contrast_map(img))
+
+
 
