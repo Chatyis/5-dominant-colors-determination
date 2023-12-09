@@ -47,43 +47,77 @@ def perform_rag(img, rag_cut_threshold):
     return color.label2rgb(labels2, img, kind='avg', bg_label=0)
 
 
-def contrast_map(image):
+def contrast_and_saturation_map(image):
+    map_of_contrast = {}
+    map_of_saturation = {}
+    max_contrast_value = 0
+    max_saturation_value = 0
     # grab the image dimensions
     height = image.shape[0]
     width = image.shape[1]
     # rgb to lab to get luminance
     image_cielab = color.rgb2lab(image)
+    unique_cielab_values = np.empty((0,3), int)
     map_of_colors = {}
     for x in range(0, height):
         for y in range(0, width):
             color_value = str(image[x][y])
             # add empty element if key doesn't exist
             if not map_of_colors.get(color_value):
-                map_of_colors[color_value] = (0,0) #(amt, sum)
+                map_of_colors[color_value] = (0, 0) #(amt, sum)
+                unique_cielab_values = np.vstack((unique_cielab_values,np.array(image_cielab[x][y])))
             # for colors around
-            for x_shift in range(-2,2):
-                for y_shift in range(-2,2):
+            for x_shift in range(-2, 2):
+                for y_shift in range(-2, 2):
                     # check for borders
-                    if(x+x_shift >= 0 and y+y_shift>=0 and x+x_shift<height and y+y_shift<width):
+                    if 0 <= x + x_shift < height and 0 <= y + y_shift < width:
                         # when luminance of neighbour pixel is other than selected pixel
-                        if(image_cielab[x][y][0] != image_cielab[x+x_shift][y+y_shift][0]):
+                        if image_cielab[x][y][0] != image_cielab[x+x_shift][y+y_shift][0]:
                             # add lum distance between selected and neighbour,
                             # increment amount for further normalisation
                             map_of_colors[color_value] = (map_of_colors[color_value][0]+1, map_of_colors[color_value][1]+abs(image_cielab[x+x_shift][y+y_shift][0] - image_cielab[x][y][0]))
-    map_of_contrast = {}
-    max_contrast_value = 0
 
-    # setup map_of_contrast with contrast divided by amount
-    for key in map_of_colors.keys():
+    # setup map_of_contrast with contrast divided by amount, map_of_saturation with saturation calculated from a and b
+    for i, key in enumerate(map_of_colors.keys()):
         map_of_contrast[key] = map_of_colors[key][1]/map_of_colors[key][0]
+        #sqrt(a^2 + b^2)
+        map_of_saturation[key] = np.absolute(unique_cielab_values[i][1] + unique_cielab_values[i][2]*1j)
         if map_of_contrast[key] > max_contrast_value:
             max_contrast_value = map_of_contrast[key]
+        if map_of_saturation[key] > max_saturation_value:
+            max_saturation_value = map_of_saturation[key]
 
-    # normalise map_of_contrast
+    # normalise map_of_contrast, map_of_saturation
     for key in map_of_contrast.keys():
         map_of_contrast[key] = map_of_contrast[key] / max_contrast_value
+        map_of_saturation[key] = map_of_saturation[key] / max_saturation_value
 
-    return map_of_contrast
+    return map_of_contrast, map_of_saturation
+
+
+def occurrence_map(image):
+    height = image.shape[0]
+    width = image.shape[1]
+    map_of_colors = {}
+
+    for x in range(0, height):
+        for y in range(0, width):
+            color_value = str(image[x][y])
+            if not map_of_colors.get(color_value):
+                map_of_colors[color_value] = (0) #(amt)
+            map_of_colors[color_value] += 1
+
+    max_occurrence_value = 0
+
+    for key in map_of_colors.keys():
+        if map_of_colors[key] > max_occurrence_value:
+            max_occurrence_value = map_of_colors[key]
+
+    # normalise map_of_occurrence
+    for key in map_of_colors.keys():
+        map_of_colors[key] = map_of_colors[key] / max_occurrence_value
+
+    return map_of_colors
 
 
 if __name__ == '__main__':
@@ -124,7 +158,6 @@ if __name__ == '__main__':
     # print(np.unique(img, return_counts=True, axis=0))
 
     # calculate contrast values for each color
-    print(contrast_map(img))
-
-
-
+    occurrence_map = occurrence_map(img)
+    map_of_contrast, map_of_saturation = contrast_and_saturation_map(img)
+    print(occurrence_map,map_of_contrast,map_of_saturation)
