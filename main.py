@@ -1,9 +1,18 @@
+import math
+import re
 import cv2 as cv
 import numpy as np
+from colormath import color_diff_matrix
 from matplotlib import pyplot as plt
 from skimage import color
 from skimage import graph
 from skimage import segmentation
+from colormath.color_objects import sRGBColor, LabColor
+from colormath.color_conversions import convert_color
+from colormath.color_diff import delta_e_cie2000
+
+def patch_asscalar(a):
+    return a.item()
 
 
 def resize_image(img, max_img_size):
@@ -120,11 +129,111 @@ def occurrence_map(image):
     return map_of_colors
 
 
+def coefficient_map(_occurrence_map, _contrast_map, _saturation_map):
+    _coefficient_map = {}
+    for key in _occurrence_map.keys():
+        _coefficient_map[key] = _occurrence_map[key] + _contrast_map[key] + _saturation_map[key]
+    return _coefficient_map
+
+
+def erode_image(image):
+    return cv.erode(image,np.ones((2, 2), np.uint8), iterations=1)
+
+
+def initial_dominant_color_list(occurrence_map, saturation_map):
+    return [max(saturation_map, key=saturation_map.get), max(occurrence_map, key=occurrence_map.get)]
+
+
+# def get_color_distance(a_rgb_string, b_rgb_string):
+#     _a_color_arr = [int(color.strip()) for color in a_rgb_string[1:-1].split(',')]
+#     _b_color_arr = [int(color.strip()) for color in b_rgb_string[1:-1].split(',')]
+#
+#     color1 = string_rgb_to_srgb(_a_color_arr)
+#     color2 = sRGBColor(_b_color_arr[2], _b_color_arr[1], _b_color_arr[0])
+#
+#     color1_lab = convert_color(color1, LabColor)
+#     color2_lab = convert_color(color2, LabColor)
+#
+#     return delta_e_cie2000(color1_lab, color2_lab)
+
+
+def string_rgb_to_srgb(rgb_string):
+    _rgb_string = [int(_color) for _color in filter(None, re.split(r',\s*|\s+',rgb_string[1:-1]))]
+    return sRGBColor(_rgb_string[2], _rgb_string[1], _rgb_string[0])
+
+
+def get_hue_angle_value(color_lab):
+    a = color_lab.get_value_tuple()[1]
+    b = color_lab.get_value_tuple()[2]
+    if a == 0:
+        if b > 0:
+            return 90
+        elif b < 0:
+            return 270
+        else:
+            return 0
+    else:
+        atan_value = math.degrees(math.atan(b/a))
+
+    if a >= 0 and b >= 0:
+        return atan_value
+    elif a < 0 <= b:
+        return atan_value + 180
+    elif a < 0 and b < 0:
+        return atan_value + 180
+    else:
+        return atan_value + 360
+
+
+def weight_map(_coefficient_map, _dominant_colors_list):
+    # for each candidate
+    print(_coefficient_map)
+    _weight_map = _coefficient_map
+    delta_hue_map = {}
+    delta_color_map = {}
+    for dominant_color in _dominant_colors_list:
+
+        for candidate_key in _coefficient_map.keys():
+            candidate_color = string_rgb_to_srgb(candidate_key)
+            candidate_color_lab = convert_color(candidate_color, LabColor)
+
+            _dominant_color = string_rgb_to_srgb(dominant_color)
+            dominant_color_lab = convert_color(_dominant_color, LabColor)
+
+            delta_hue_map[candidate_key] = get_hue_angle_value(dominant_color_lab) - get_hue_angle_value(candidate_color_lab)
+            delta_color_map[candidate_key] = delta_e_cie2000(dominant_color_lab, candidate_color_lab)
+
+        std_hue = np.std(list(delta_hue_map.values()))
+        std_color = np.std(list(delta_color_map.values()))
+
+        for candidate_key in delta_hue_map.keys():
+            w1 = 1 - math.exp(-(delta_hue_map[candidate_key]**2/std_hue**2))
+            w2 = 1 - math.exp(-(delta_color_map[candidate_key]**2/std_color**2))
+
+            _weight_map[candidate_key] = _weight_map[candidate_key] * w1 * w2
+
+    return _weight_map
+
+
+def display_colors(colors_list):
+    fig, ax = plt.subplots()
+    for iterator, _color in enumerate(colors_list):
+        rgb_string = [int(_color) for _color in filter(None, re.split(r',\s*|\s+', _color[1:-1]))]
+        ax.add_patch(plt.Rectangle((1.5*iterator, 0), 1.5, 1.5, color=(rgb_string[2]/255, rgb_string[1]/255, rgb_string[0]/255)))
+
+    ax.set_xlim(0, (len(colors_list))*1.5)
+    ax.set_yticks([])
+    ax.set_xticks([])
+    plt.show()
+
+
 if __name__ == '__main__':
+    setattr(np, "asscalar", patch_asscalar)
+
     clusters_amt = 32
     rag_cut_threshold = 25
     max_img_size = 1000
-    img = cv.imread('data/input_images/full_moon.jpg')
+    img = cv.imread('data/input_images/flowers.jpg')
 
     img = resize_image(img, max_img_size)
 
@@ -159,5 +268,28 @@ if __name__ == '__main__':
 
     # calculate contrast values for each color
     occurrence_map = occurrence_map(img)
-    map_of_contrast, map_of_saturation = contrast_and_saturation_map(img)
-    print(occurrence_map,map_of_contrast,map_of_saturation)
+    contrast_map, saturation_map = contrast_and_saturation_map(img)
+    # print(occurrence_map, contrast_map, saturation_map)
+    # pk = Ck + Ak + Sk
+    coefficient_map = coefficient_map(occurrence_map,contrast_map,saturation_map)
+
+
+    # img = erode_image(img)
+    # img_as_vector = img.reshape(-1,3)
+    # values_after_erosion, counts_after_erosion = np.unique(img_as_vector, return_counts=True, axis=0)
+    # cv.imshow('erosion',img)
+    # cv.waitKey(0)
+    # print(len(values), len(values_after_erosion))
+    # amt = 0
+    # for value in values:
+    #     if value in values_after_erosion:
+    #         amt+=1
+
+    dominant_colors_map = initial_dominant_color_list(occurrence_map, saturation_map)
+    for i in range(3):
+        _weight_map = weight_map(coefficient_map, dominant_colors_map)
+        dominant_colors_map.append(max(_weight_map, key=_weight_map.get))
+    # print(dominant_colors_map)
+    display_colors(dominant_colors_map)
+    # plt.imshow([np.uint8(dominant_colors_map)])
+    # plt.show()

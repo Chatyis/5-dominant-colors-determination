@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d06ba1fe-2420-4fcf-9af9-2f25f975b007" name="Changes" comment="Added calculating contrast, corrected parameters further">
+    <list default="true" id="d06ba1fe-2420-4fcf-9af9-2f25f975b007" name="Changes" comment="Added calculating saturation and occurrences">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/output_images/bilateral.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/bilateral.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/output_images/k_means.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/k_means.jpg" afterDir="false" />
@@ -157,7 +157,14 @@
       <option name="project" value="LOCAL" />
       <updated>1702132021885</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added calculating saturation and occurrences">
+      <created>1702163736606</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1702163736606</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -177,7 +184,8 @@
     <MESSAGE value="Added RAG and graph cut, parameters should be perhaps readjusted as white on some images appears as black" />
     <MESSAGE value="Corrected RAG, added calculating, RAG need to be improved further to reduce colors amt" />
     <MESSAGE value="Added calculating contrast, corrected parameters further" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added calculating contrast, corrected parameters further" />
+    <MESSAGE value="Added calculating saturation and occurrences" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added calculating saturation and occurrences" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
