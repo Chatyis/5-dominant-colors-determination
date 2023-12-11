@@ -2,14 +2,14 @@ import math
 import re
 import cv2 as cv
 import numpy as np
-from colormath import color_diff_matrix
 from matplotlib import pyplot as plt
 from skimage import color
 from skimage import graph
 from skimage import segmentation
-from colormath.color_objects import sRGBColor, LabColor
 from colormath.color_conversions import convert_color
 from colormath.color_diff import delta_e_cie2000
+from colormath.color_objects import sRGBColor, LabColor
+
 
 def patch_asscalar(a):
     return a.item()
@@ -45,14 +45,16 @@ def merge_mean_color(graph, src, dst):
     graph.nodes[dst]['mean color'] = (graph.nodes[dst]['total color'] /
                                       graph.nodes[dst]['pixel count'])
 
+
 def perform_rag(img, rag_cut_threshold):
     labels = segmentation.slic(img, compactness=10, n_segments=1000, start_label=1)
     g = graph.rag_mean_color(img, labels)
-    # labels2 = graph.cut_threshold(labels, g, rag_cut_threshold)
+
     labels2 = graph.merge_hierarchical(labels, g, thresh=rag_cut_threshold, rag_copy=False,
                                        in_place_merge=True,
                                        merge_func=merge_mean_color,
                                        weight_func=_weight_mean_color)
+
     return color.label2rgb(labels2, img, kind='avg', bg_label=0)
 
 
@@ -144,19 +146,6 @@ def initial_dominant_color_list(occurrence_map, saturation_map):
     return [max(saturation_map, key=saturation_map.get), max(occurrence_map, key=occurrence_map.get)]
 
 
-# def get_color_distance(a_rgb_string, b_rgb_string):
-#     _a_color_arr = [int(color.strip()) for color in a_rgb_string[1:-1].split(',')]
-#     _b_color_arr = [int(color.strip()) for color in b_rgb_string[1:-1].split(',')]
-#
-#     color1 = string_rgb_to_srgb(_a_color_arr)
-#     color2 = sRGBColor(_b_color_arr[2], _b_color_arr[1], _b_color_arr[0])
-#
-#     color1_lab = convert_color(color1, LabColor)
-#     color2_lab = convert_color(color2, LabColor)
-#
-#     return delta_e_cie2000(color1_lab, color2_lab)
-
-
 def string_rgb_to_srgb(rgb_string):
     _rgb_string = [int(_color) for _color in filter(None, re.split(r',\s*|\s+',rgb_string[1:-1]))]
     return sRGBColor(_rgb_string[2], _rgb_string[1], _rgb_string[0])
@@ -232,20 +221,22 @@ if __name__ == '__main__':
 
     clusters_amt = 32
     rag_cut_threshold = 25
-    max_img_size = 1000
-    img = cv.imread('data/input_images/flowers.jpg')
+    max_img_size = 250
+    skip_rag = True
+
+    img = cv.imread('data/input_images/full_moon.jpg')
 
     img = resize_image(img, max_img_size)
 
     # bilateral filtering https://www.geeksforgeeks.org/python-bilateral-filtering/
-    bilateral_output = cv.bilateralFilter(img, 15, 75, 75)
+    img = cv.bilateralFilter(img, 15, 75, 75)
 
-    cv.imwrite('data/output_images/bilateral.jpg', bilateral_output)
+    cv.imwrite('data/output_images/bilateral.jpg', img)
 
     # K-means https://docs.opencv.org/3.4/d1/d5c/tutorial_py_kmeans_opencv.html https://scikit-learn.org/stable/auto_examples/cluster/plot_color_quantization.html
-    k_means_output = calculate_k_means(clusters_amt, bilateral_output)
+    img = calculate_k_means(clusters_amt, img)
 
-    cv.imwrite('data/output_images/k_means.jpg', k_means_output)
+    cv.imwrite('data/output_images/k_means.jpg', img)
 
     # RAG
     # https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_draw.html
@@ -255,41 +246,32 @@ if __name__ == '__main__':
     # TODO Threshold has problems on dark images,
     # TODO also RAG generates black artifact most often in top left corner
     # TODO most propably issues are connected with bad rag parameters or low quality method
-    img = perform_rag(k_means_output, rag_cut_threshold)
-
-    cv.imwrite('data/output_images/rag_cut.jpg', img)
+    if not skip_rag:
+        img = perform_rag(img, rag_cut_threshold)
+        cv.imwrite('data/output_images/rag_cut.jpg', img)
 
     # https://stackoverflow.com/questions/12282232/how-do-i-count-occurrence-of-unique-values-inside-a-list
     # https://docs.python.org/3/library/collections.html#collections.Counter
     # https://stackoverflow.com/questions/28663856/how-do-i-count-the-occurrence-of-a-certain-item-in-an-ndarray
-    img_as_vector = img.reshape(-1,3)
-    values, counts = np.unique(img_as_vector, return_counts=True, axis=0)
-    # print(np.unique(img, return_counts=True, axis=0))
 
     # calculate contrast values for each color
     occurrence_map = occurrence_map(img)
     contrast_map, saturation_map = contrast_and_saturation_map(img)
-    # print(occurrence_map, contrast_map, saturation_map)
+
     # pk = Ck + Ak + Sk
     coefficient_map = coefficient_map(occurrence_map,contrast_map,saturation_map)
 
+    # erosion
+    img = erode_image(img)
 
-    # img = erode_image(img)
-    # img_as_vector = img.reshape(-1,3)
-    # values_after_erosion, counts_after_erosion = np.unique(img_as_vector, return_counts=True, axis=0)
-    # cv.imshow('erosion',img)
-    # cv.waitKey(0)
-    # print(len(values), len(values_after_erosion))
-    # amt = 0
-    # for value in values:
-    #     if value in values_after_erosion:
-    #         amt+=1
+    cv.imwrite('data/output_images/erode.jpg', img)
 
-    dominant_colors_map = initial_dominant_color_list(occurrence_map, saturation_map)
+    # initialising final dominant colors list
+    dominant_colors_list = initial_dominant_color_list(occurrence_map, saturation_map)
+
+    # adding three more values to the final dominant colors list
     for i in range(3):
-        _weight_map = weight_map(coefficient_map, dominant_colors_map)
-        dominant_colors_map.append(max(_weight_map, key=_weight_map.get))
-    # print(dominant_colors_map)
-    display_colors(dominant_colors_map)
-    # plt.imshow([np.uint8(dominant_colors_map)])
-    # plt.show()
+        _weight_map = weight_map(coefficient_map, dominant_colors_list)
+        dominant_colors_list.append(max(_weight_map, key=_weight_map.get))
+
+    display_colors(dominant_colors_list)
