@@ -224,7 +224,7 @@ if __name__ == '__main__':
     max_img_size = 250
     skip_rag = True
 
-    img = cv.imread('data/input_images/full_moon.jpg')
+    img = cv.imread('data/input_images/Red_eyed_tree_frog_edit2.jpg')
 
     img = resize_image(img, max_img_size)
 

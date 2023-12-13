@@ -4,15 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d06ba1fe-2420-4fcf-9af9-2f25f975b007" name="Changes" comment="finished functionality, black artifact needs to be fixed, destined to further tests">
-      <change afterPath="$PROJECT_DIR$/data/input_images/464745415.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/input_images/Red_eyed_tree_frog_edit2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/input_images/desk-notebook-writing-book-pen-diary-1047739-pxhere.com.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/input_images/wallpaperflare.com_wallpaper.jpg" afterDir="false" />
+    <list default="true" id="d06ba1fe-2420-4fcf-9af9-2f25f975b007" name="Changes" comment="Code cleaning with optional RAG">
+      <change afterPath="$PROJECT_DIR$/data/input_images/marcell-rubies-GAp2GNAr128-unsplash (1).jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/output_images/bilateral.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/bilateral.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/output_images/erode.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/erode.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/output_images/k_means.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/k_means.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/output_images/rag_cut.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/rag_cut.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -175,7 +172,14 @@
       <option name="project" value="LOCAL" />
       <updated>1702245838050</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Code cleaning with optional RAG">
+      <created>1702325894170</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1702325894170</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -197,7 +201,8 @@
     <MESSAGE value="Added calculating contrast, corrected parameters further" />
     <MESSAGE value="Added calculating saturation and occurrences" />
     <MESSAGE value="finished functionality, black artifact needs to be fixed, destined to further tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="finished functionality, black artifact needs to be fixed, destined to further tests" />
+    <MESSAGE value="Code cleaning with optional RAG" />
+    <option name="LAST_COMMIT_MESSAGE" value="Code cleaning with optional RAG" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
