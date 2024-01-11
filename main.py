@@ -1,5 +1,6 @@
 import math
 import re
+import sys
 import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
@@ -9,7 +10,7 @@ from skimage import segmentation
 from colormath.color_conversions import convert_color
 from colormath.color_diff import delta_e_cie2000
 from colormath.color_objects import sRGBColor, LabColor
-
+import time
 
 def patch_asscalar(a):
     return a.item()
@@ -128,6 +129,10 @@ def occurrence_map(image):
     for key in map_of_colors.keys():
         map_of_colors[key] = map_of_colors[key] / max_occurrence_value
 
+    if(len(map_of_colors) == 1):
+        display_colors([list(map_of_colors.keys())[0]])
+        sys.exit()
+
     return map_of_colors
 
 
@@ -143,6 +148,8 @@ def erode_image(image):
 
 
 def initial_dominant_color_list(occurrence_map, saturation_map):
+    most_saturated_color = max(saturation_map, key=saturation_map.get)
+    occurrence_map.pop(most_saturated_color)
     return [max(saturation_map, key=saturation_map.get), max(occurrence_map, key=occurrence_map.get)]
 
 
@@ -176,7 +183,7 @@ def get_hue_angle_value(color_lab):
 
 def weight_map(_coefficient_map, _dominant_colors_list):
     # for each candidate
-    print(_coefficient_map)
+    # print(_coefficient_map)
     _weight_map = _coefficient_map
     delta_hue_map = {}
     delta_color_map = {}
@@ -213,10 +220,19 @@ def display_colors(colors_list):
     ax.set_xlim(0, (len(colors_list))*1.5)
     ax.set_yticks([])
     ax.set_xticks([])
+
+    dominant_colors_list_RGB = list(map(lambda x: ' '.join(list(reversed(re.split(r',\s*|\s+', x[1:-1])))), colors_list))
+    figtext_args = (0.5, 0.05,'[' + '] | ['.join(dominant_colors_list_RGB) + ']')
+    figtext_kwargs = dict(horizontalalignment="center", fontsize=10, wrap=True)
+
+    # plt.figtext(0.5,0,'['+'],['.join(dominant_colors_list_RGB)+']')
+    plt.figtext(*figtext_args, **figtext_kwargs)
+    print(time.time() - start_time)
     plt.show()
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     setattr(np, "asscalar", patch_asscalar)
 
     clusters_amt = 32
@@ -224,54 +240,60 @@ if __name__ == '__main__':
     max_img_size = 250
     skip_rag = True
 
-    img = cv.imread('data/input_images/Red_eyed_tree_frog_edit2.jpg')
+    try:
+        img = cv.imread('data/input_images/full_moon.jpg')
+        if img is None:
+            raise FileNotFoundError("Image not found or couldn't be loaded")
 
-    img = resize_image(img, max_img_size)
+        img = resize_image(img, max_img_size)
 
-    # bilateral filtering https://www.geeksforgeeks.org/python-bilateral-filtering/
-    img = cv.bilateralFilter(img, 15, 75, 75)
+        # bilateral filtering https://www.geeksforgeeks.org/python-bilateral-filtering/
+        img = cv.bilateralFilter(img, 15, 75, 75)
 
-    cv.imwrite('data/output_images/bilateral.jpg', img)
+        cv.imwrite('data/output_images/bilateral.jpg', img)
 
-    # K-means https://docs.opencv.org/3.4/d1/d5c/tutorial_py_kmeans_opencv.html https://scikit-learn.org/stable/auto_examples/cluster/plot_color_quantization.html
-    img = calculate_k_means(clusters_amt, img)
+        # K-means https://docs.opencv.org/3.4/d1/d5c/tutorial_py_kmeans_opencv.html https://scikit-learn.org/stable/auto_examples/cluster/plot_color_quantization.html
+        img = calculate_k_means(clusters_amt, img)
 
-    cv.imwrite('data/output_images/k_means.jpg', img)
+        cv.imwrite('data/output_images/k_means.jpg', img)
 
-    # RAG
-    # https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_draw.html
-    # https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_mean_color.html#sphx-glr-auto-examples-segmentation-plot-rag-mean-color-py - graph cut
-    # https://pypi.org/project/img2rag/
+        # RAG
+        # https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_draw.html
+        # https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_mean_color.html#sphx-glr-auto-examples-segmentation-plot-rag-mean-color-py - graph cut
+        # https://pypi.org/project/img2rag/
 
-    # TODO Threshold has problems on dark images,
-    # TODO also RAG generates black artifact most often in top left corner
-    # TODO most propably issues are connected with bad rag parameters or low quality method
-    if not skip_rag:
-        img = perform_rag(img, rag_cut_threshold)
-        cv.imwrite('data/output_images/rag_cut.jpg', img)
+        # TODO Threshold has problems on dark images,
+        # TODO also RAG generates black artifact most often in top left corner
+        # TODO most propably issues are connected with bad rag parameters or low quality method
+        if not skip_rag:
+            img = perform_rag(img, rag_cut_threshold)
+            cv.imwrite('data/output_images/rag_cut.jpg', img)
 
-    # https://stackoverflow.com/questions/12282232/how-do-i-count-occurrence-of-unique-values-inside-a-list
-    # https://docs.python.org/3/library/collections.html#collections.Counter
-    # https://stackoverflow.com/questions/28663856/how-do-i-count-the-occurrence-of-a-certain-item-in-an-ndarray
+        # https://stackoverflow.com/questions/12282232/how-do-i-count-occurrence-of-unique-values-inside-a-list
+        # https://docs.python.org/3/library/collections.html#collections.Counter
+        # https://stackoverflow.com/questions/28663856/how-do-i-count-the-occurrence-of-a-certain-item-in-an-ndarray
 
-    # calculate contrast values for each color
-    occurrence_map = occurrence_map(img)
-    contrast_map, saturation_map = contrast_and_saturation_map(img)
+        # calculate contrast values for each color
+        _occurrence_map = occurrence_map(img)
+        contrast_map, saturation_map = contrast_and_saturation_map(img)
 
-    # pk = Ck + Ak + Sk
-    coefficient_map = coefficient_map(occurrence_map,contrast_map,saturation_map)
+        # pk = Ck + Ak + Sk
+        _coefficient_map = coefficient_map(_occurrence_map,contrast_map,saturation_map)
 
-    # erosion
-    img = erode_image(img)
+        # erosion
+        img = erode_image(img)
 
-    cv.imwrite('data/output_images/erode.jpg', img)
+        cv.imwrite('data/output_images/erode.jpg', img)
 
-    # initialising final dominant colors list
-    dominant_colors_list = initial_dominant_color_list(occurrence_map, saturation_map)
+        # initialising final dominant colors list
+        dominant_colors_list = initial_dominant_color_list(_occurrence_map, saturation_map)
 
-    # adding three more values to the final dominant colors list
-    for i in range(3):
-        _weight_map = weight_map(coefficient_map, dominant_colors_list)
-        dominant_colors_list.append(max(_weight_map, key=_weight_map.get))
-
-    display_colors(dominant_colors_list)
+        # adding three more values to the final dominant colors list
+        for i in range(min(len(_coefficient_map)-2,3)):
+            _weight_map = weight_map(_coefficient_map, dominant_colors_list)
+            dominant_colors_list.append(max(_weight_map, key=_weight_map.get))
+        # print(dominant_colors_list)
+        display_colors(dominant_colors_list)
+    except FileNotFoundError as e:
+        print(e)
+        sys.exit()
