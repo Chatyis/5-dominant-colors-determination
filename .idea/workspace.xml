@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d06ba1fe-2420-4fcf-9af9-2f25f975b007" name="Changes" comment="added new images and requirements.txt">
-      <change afterPath="$PROJECT_DIR$/data/input_images/abdullah-raafat-rWaQGsOquuc-unsplash.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/input_images/lloyd-williams-kCmR1FIm-Mk-unsplash.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/input_images/test_5_rownych.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/input_images/test_k_mniej_niz_5.png" afterDir="false" />
+    <list default="true" id="d06ba1fe-2420-4fcf-9af9-2f25f975b007" name="Changes" comment="Bugfixes, error handling and small adjustments">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/output_images/rag_cut.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/rag_cut.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/output_images/bilateral.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/bilateral.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/output_images/erode.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/erode.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/output_images/k_means.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/k_means.jpg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -189,7 +185,14 @@
       <option name="project" value="LOCAL" />
       <updated>1702499117749</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Bugfixes, error handling and small adjustments">
+      <created>1704979278637</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1704979278637</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -213,7 +216,8 @@
     <MESSAGE value="finished functionality, black artifact needs to be fixed, destined to further tests" />
     <MESSAGE value="Code cleaning with optional RAG" />
     <MESSAGE value="added new images and requirements.txt" />
-    <option name="LAST_COMMIT_MESSAGE" value="added new images and requirements.txt" />
+    <MESSAGE value="Bugfixes, error handling and small adjustments" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bugfixes, error handling and small adjustments" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
