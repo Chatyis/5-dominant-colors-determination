@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d06ba1fe-2420-4fcf-9af9-2f25f975b007" name="Changes" comment="Bugfixes, error handling and small adjustments">
+    <list default="true" id="d06ba1fe-2420-4fcf-9af9-2f25f975b007" name="Changes" comment="Further file cleanup">
+      <change afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/display.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/output_images/bilateral.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/bilateral.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/output_images/erode.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/erode.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/output_images/k_means.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/data/output_images/k_means.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +24,9 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -41,19 +47,23 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="OptimizeOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
+  </component>
   <component name="ProjectId" id="2YoQFhI0I5UcOiXZcMjCGy3PsQS" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Python Projekty/5 dominant colors determination/data/input_images&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/Python Projekty/5 dominant colors determination/data/input_images",
+    "settings.editor.selected.configurable": "actions.on.save"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Python Projekty\5 dominant colors determination\data\input_images" />
@@ -63,7 +73,28 @@
       <recent name="C:\Python Projekty\5 dominant colors determination\data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.display">
+    <configuration name="display" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="5 dominant colors determination" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/display.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="5 dominant colors determination" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -108,6 +139,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.display" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.test" />
       </list>
@@ -192,7 +224,21 @@
       <option name="project" value="LOCAL" />
       <updated>1704979278637</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Removed unused file">
+      <created>1704981985530</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1704981985530</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Further file cleanup">
+      <created>1704982188030</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1704982188030</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -217,7 +263,9 @@
     <MESSAGE value="Code cleaning with optional RAG" />
     <MESSAGE value="added new images and requirements.txt" />
     <MESSAGE value="Bugfixes, error handling and small adjustments" />
-    <option name="LAST_COMMIT_MESSAGE" value="Bugfixes, error handling and small adjustments" />
+    <MESSAGE value="Removed unused file" />
+    <MESSAGE value="Further file cleanup" />
+    <option name="LAST_COMMIT_MESSAGE" value="Further file cleanup" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
